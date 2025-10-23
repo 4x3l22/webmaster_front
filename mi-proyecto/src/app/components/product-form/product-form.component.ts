@@ -31,7 +31,6 @@ import { trigger, transition, style, animate } from '@angular/animations';
 export class ProductFormComponent implements OnInit {
   product = signal<Product>({ 
     name: '', 
-    description: '',
     price: 0,
     stock: 0,
     categoryId: undefined,
@@ -46,10 +45,30 @@ export class ProductFormComponent implements OnInit {
   error = signal<string>('');
   success = signal<boolean>(false);
 
-  // Categorías desde la API
   categories = signal<any[]>([]);
   sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Única'];
-  colors = ['Negro', 'Blanco', 'Gris', 'Azul', 'Rojo', 'Verde', 'Amarillo', 'Rosa', 'Morado', 'Multicolor'];
+  selectedSizes = signal<string[]>([]);
+  selectedColors = signal<string[]>([]);
+  
+  colorOptions = [
+    { name: 'Negro', hex: '#000000' },
+    { name: 'Blanco', hex: '#FFFFFF' },
+    { name: 'Gris', hex: '#808080' },
+    { name: 'Azul', hex: '#0000FF' },
+    { name: 'Azul Marino', hex: '#000080' },
+    { name: 'Celeste', hex: '#87CEEB' },
+    { name: 'Rojo', hex: '#FF0000' },
+    { name: 'Verde', hex: '#008000' },
+    { name: 'Verde Lima', hex: '#00FF00' },
+    { name: 'Amarillo', hex: '#FFFF00' },
+    { name: 'Naranja', hex: '#FFA500' },
+    { name: 'Rosa', hex: '#FFC0CB' },
+    { name: 'Morado', hex: '#800080' },
+    { name: 'Café', hex: '#8B4513' },
+    { name: 'Beige', hex: '#F5F5DC' },
+    { name: 'Dorado', hex: '#FFD700' },
+    { name: 'Plateado', hex: '#C0C0C0' }
+  ];
 
   constructor(
     private productService: ProductService,
@@ -59,7 +78,6 @@ export class ProductFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Cargar categorías
     this.loadCategories();
     
     const id = this.route.snapshot.paramMap.get('id');
@@ -85,7 +103,22 @@ export class ProductFormComponent implements OnInit {
     this.loading.set(true);
     this.productService.getProductById(id).subscribe({
       next: (data) => {
-        this.product.set(data);
+        this.product.set({
+          ...data,
+          categoryId: data.categoryId,
+          color: data.color || ''
+        });
+        
+        if (data.size) {
+          const sizesArray = data.size.split('-').filter(s => s.trim());
+          this.selectedSizes.set(sizesArray);
+        }
+        
+        if (data.color) {
+          const colorsArray = data.color.split('-').filter(c => c.trim());
+          this.selectedColors.set(colorsArray);
+        }
+        
         this.loading.set(false);
       },
       error: (err) => {
@@ -96,14 +129,50 @@ export class ProductFormComponent implements OnInit {
     });
   }
 
+  isValidUrl(url: string | undefined): boolean {
+    if (!url) return false;
+    const urlPattern = /^https?:\/\/.+/i;
+    return urlPattern.test(url);
+  }
+
   onSubmit(): void {
     if (!this.product().name.trim()) {
       this.error.set('El nombre del producto es requerido');
       return;
     }
 
+    if (!this.product().categoryId) {
+      this.error.set('Debes seleccionar una categoría');
+      return;
+    }
+
+    if (!this.product().imageUrl?.trim()) {
+      this.error.set('La URL de la imagen es requerida');
+      return;
+    }
+
+    if (!this.isValidUrl(this.product().imageUrl)) {
+      this.error.set('La URL de la imagen debe comenzar con http:// o https://');
+      return;
+    }
+
     if (!this.product().price || this.product().price! <= 0) {
       this.error.set('El precio debe ser mayor a 0');
+      return;
+    }
+
+    if (this.product().stock === undefined || this.product().stock! < 0) {
+      this.error.set('El stock es requerido y debe ser mayor o igual a 0');
+      return;
+    }
+
+    if (this.selectedSizes().length === 0) {
+      this.error.set('Debes seleccionar al menos una talla');
+      return;
+    }
+
+    if (this.selectedColors().length === 0) {
+      this.error.set('Debes seleccionar al menos un color');
       return;
     }
 
@@ -130,8 +199,79 @@ export class ProductFormComponent implements OnInit {
     });
   }
 
+  isFormValid(): boolean {
+    const p = this.product();
+    return !!(
+      p.name.trim() &&
+      p.categoryId &&
+      p.imageUrl?.trim() &&
+      this.isValidUrl(p.imageUrl) &&
+      p.price &&
+      p.price > 0 &&
+      p.stock !== undefined &&
+      p.stock !== null &&
+      p.stock >= 0 &&
+      this.selectedSizes().length > 0 &&
+      this.selectedColors().length > 0
+    );
+  }
+
   updateField(field: keyof Product, value: any): void {
     this.product.update(prod => ({ ...prod, [field]: value }));
+  }
+
+  addSize(size: string): void {
+    if (!size || this.selectedSizes().includes(size)) return;
+    this.selectedSizes.update(sizes => [...sizes, size]);
+    this.updateSizeField();
+  }
+
+  removeSize(size: string): void {
+    this.selectedSizes.update(sizes => sizes.filter(s => s !== size));
+    this.updateSizeField();
+  }
+
+  getSelectedSizes(): string[] {
+    return this.selectedSizes();
+  }
+
+  availableSizes = (): string[] => {
+    return this.sizes.filter(size => !this.selectedSizes().includes(size));
+  }
+
+  updateSizeField(): void {
+    const sizesString = this.selectedSizes().join('-');
+    this.product.update(prod => ({ ...prod, size: sizesString }));
+  }
+
+  // Funciones para manejar colores múltiples
+  addColor(colorHex: string): void {
+    if (!colorHex || this.selectedColors().includes(colorHex)) return;
+    this.selectedColors.update(colors => [...colors, colorHex]);
+    this.updateColorField();
+  }
+
+  removeColor(colorHex: string): void {
+    this.selectedColors.update(colors => colors.filter(c => c !== colorHex));
+    this.updateColorField();
+  }
+
+  getSelectedColors(): string[] {
+    return this.selectedColors();
+  }
+
+  availableColors = (): typeof this.colorOptions => {
+    return this.colorOptions.filter(color => !this.selectedColors().includes(color.hex));
+  }
+
+  updateColorField(): void {
+    const colorsString = this.selectedColors().join('-');
+    this.product.update(prod => ({ ...prod, color: colorsString }));
+  }
+
+  getColorNameFromHex(hex: string): string {
+    const color = this.colorOptions.find(c => c.hex.toLowerCase() === hex.toLowerCase());
+    return color ? color.name : hex;
   }
 
   getCategoryName(categoryId: number | undefined): string {

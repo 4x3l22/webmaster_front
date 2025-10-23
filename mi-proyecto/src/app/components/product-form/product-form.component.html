@@ -56,34 +56,19 @@
             />
           </div>
 
-          <!-- Description -->
-          <div class="form-group">
-            <label for="description" class="form-label">
-              <span class="icon">📝</span>
-              Descripción
-            </label>
-            <textarea
-              id="description"
-              class="form-textarea"
-              [value]="product().description || ''"
-              (input)="updateField('description', $any($event.target).value)"
-              placeholder="Describe el producto, material, características especiales..."
-              rows="4"
-              [disabled]="loading()"
-            ></textarea>
-          </div>
-
           <!-- Category -->
           <div class="form-group">
             <label for="category" class="form-label">
               <span class="icon">🏷️</span>
               Categoría
+              <span class="required">*</span>
             </label>
             <select
               id="category"
               class="form-select"
               [value]="product().categoryId || ''"
               (change)="updateField('categoryId', +$any($event.target).value)"
+              required
               [disabled]="loading()"
             >
               <option value="">Seleccionar categoría</option>
@@ -96,6 +81,7 @@
             <label for="imageUrl" class="form-label">
               <span class="icon">🖼️</span>
               URL de la Imagen
+              <span class="required">*</span>
             </label>
             <input
               type="url"
@@ -104,10 +90,17 @@
               [value]="product().imageUrl || ''"
               (input)="updateField('imageUrl', $any($event.target).value)"
               placeholder="https://ejemplo.com/imagen.jpg"
+              pattern="https?://.+"
+              title="Debe ser una URL válida que comience con http:// o https://"
+              required
               [disabled]="loading()"
+              [class.invalid]="product().imageUrl && !isValidUrl(product().imageUrl)"
             />
-            <small class="form-hint">
-              URL de la imagen del producto
+            <small class="form-hint" *ngIf="!product().imageUrl || isValidUrl(product().imageUrl)">
+              Debe comenzar con http:// o https://
+            </small>
+            <small class="form-error" *ngIf="product().imageUrl && !isValidUrl(product().imageUrl)">
+              ⚠️ URL inválida. Debe comenzar con http:// o https://
             </small>
           </div>
         </div>
@@ -143,6 +136,7 @@
             <label for="stock" class="form-label">
               <span class="icon">📦</span>
               Stock (Unidades)
+              <span class="required">*</span>
             </label>
             <input
               type="number"
@@ -152,44 +146,76 @@
               (input)="updateField('stock', +$any($event.target).value)"
               placeholder="0"
               min="0"
+              required
               [disabled]="loading()"
             />
           </div>
 
-          <!-- Size -->
+          <!-- Size Multi-Select -->
           <div class="form-group">
             <label for="size" class="form-label">
               <span class="icon">📏</span>
-              Talla
+              Tallas
+              <span class="required">*</span>
             </label>
-            <select
-              id="size"
-              class="form-select"
-              [value]="product().size || ''"
-              (change)="updateField('size', $any($event.target).value)"
-              [disabled]="loading()"
-            >
-              <option value="">Seleccionar talla</option>
-              <option *ngFor="let size of sizes" [value]="size">{{ size }}</option>
-            </select>
+            <div class="multi-select-container">
+              <div class="size-chips">
+                <span *ngFor="let size of getSelectedSizes()" class="size-chip">
+                  {{ size }}
+                  <button type="button" class="chip-remove" (click)="removeSize(size)" [disabled]="loading()">×</button>
+                </span>
+                <span *ngIf="getSelectedSizes().length === 0" class="placeholder-text">
+                  Selecciona una o más tallas
+                </span>
+              </div>
+              <select
+                id="size"
+                class="form-select-multi"
+                (change)="addSize($any($event.target).value); $any($event.target).value = ''"
+                [disabled]="loading()"
+              >
+                <option value="">+ Agregar talla</option>
+                <option *ngFor="let size of availableSizes()" [value]="size">{{ size }}</option>
+              </select>
+            </div>
+            <small class="form-hint">
+              Puedes seleccionar múltiples tallas para este producto
+            </small>
           </div>
 
-          <!-- Color -->
+          <!-- Color Multi-Select -->
           <div class="form-group">
             <label for="color" class="form-label">
               <span class="icon">🎨</span>
-              Color
+              Colores
+              <span class="required">*</span>
             </label>
-            <select
-              id="color"
-              class="form-select"
-              [value]="product().color || ''"
-              (change)="updateField('color', $any($event.target).value)"
-              [disabled]="loading()"
-            >
-              <option value="">Seleccionar color</option>
-              <option *ngFor="let color of colors" [value]="color">{{ color }}</option>
-            </select>
+            <div class="multi-select-container">
+              <div class="color-chips">
+                <div *ngFor="let colorHex of getSelectedColors()" class="color-chip">
+                  <div class="color-circle" [style.background-color]="colorHex"></div>
+                  <span class="color-name">{{ getColorNameFromHex(colorHex) }}</span>
+                  <button type="button" class="chip-remove" (click)="removeColor(colorHex)" [disabled]="loading()">×</button>
+                </div>
+                <span *ngIf="getSelectedColors().length === 0" class="placeholder-text">
+                  Selecciona uno o más colores
+                </span>
+              </div>
+              <select
+                id="color"
+                class="form-select-multi"
+                (change)="addColor($any($event.target).value); $any($event.target).value = ''"
+                [disabled]="loading()"
+              >
+                <option value="">+ Agregar color</option>
+                <option *ngFor="let color of availableColors()" [value]="color.hex">
+                  {{ color.name }}
+                </option>
+              </select>
+            </div>
+            <small class="form-hint">
+              Puedes seleccionar múltiples colores para este producto
+            </small>
           </div>
         </div>
       </div>
@@ -215,16 +241,21 @@
             <h4 class="preview-name">
               {{ product().name || 'Nombre del producto' }}
             </h4>
-            <p class="preview-description">
-              {{ product().description || 'Sin descripción' }}
-            </p>
             <div class="preview-details">
-              <span class="preview-detail" *ngIf="product().size">
-                📏 {{ product().size }}
+              <span class="preview-detail" *ngIf="selectedSizes().length > 0">
+                📏 {{ selectedSizes().join(', ') }}
               </span>
-              <span class="preview-detail" *ngIf="product().color">
-                🎨 {{ product().color }}
-              </span>
+              <div class="preview-detail preview-colors" *ngIf="selectedColors().length > 0">
+                <span class="preview-label">🎨 Colores:</span>
+                <div class="preview-color-circles">
+                  <div 
+                    *ngFor="let colorHex of selectedColors()" 
+                    class="preview-color-circle"
+                    [style.background-color]="colorHex"
+                    [title]="getColorNameFromHex(colorHex)"
+                  ></div>
+                </div>
+              </div>
               <span class="preview-detail" *ngIf="product().stock !== undefined">
                 📦 {{ product().stock }} unidades
               </span>
@@ -250,7 +281,7 @@
         <button 
           type="submit" 
           class="btn btn-submit"
-          [disabled]="loading() || !product().name.trim() || !product().price || (product().price ?? 0) <= 0"
+          [disabled]="loading() || !isFormValid()"
         >
           <span *ngIf="!loading()" class="icon">
             {{ isEditMode() ? '💾' : '✨' }}

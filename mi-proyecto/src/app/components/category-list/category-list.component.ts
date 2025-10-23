@@ -46,10 +46,12 @@ export class CategoryListComponent implements OnInit {
 
   loadCategories(): void {
     this.loading.set(true);
+    this.error.set(''); 
     this.categoryService.getCategories().subscribe({
       next: (data) => {
         this.categories.set(data);
         this.loading.set(false);
+        this.error.set(''); 
       },
       error: (err) => {
         this.error.set('Error al cargar las categorías');

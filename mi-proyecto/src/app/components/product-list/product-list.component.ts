@@ -65,10 +65,12 @@ export class ProductListComponent implements OnInit {
 
   loadProducts(): void {
     this.loading.set(true);
+    this.error.set(''); 
     this.productService.getProducts().subscribe({
       next: (data) => {
         this.products.set(data);
         this.loading.set(false);
+        this.error.set(''); 
       },
       error: (err) => {
         this.error.set('Error al cargar los productos');
@@ -108,7 +110,6 @@ export class ProductListComponent implements OnInit {
       filtered = filtered.filter(product => {
         const categoryName = this.getCategoryName(product.categoryId);
         return product.name.toLowerCase().includes(term) || 
-          (product.description?.toLowerCase().includes(term) || false) ||
           categoryName.toLowerCase().includes(term);
       });
     }

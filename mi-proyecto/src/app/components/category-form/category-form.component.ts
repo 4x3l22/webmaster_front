@@ -70,6 +70,11 @@ export class CategoryFormComponent implements OnInit {
       return;
     }
 
+    if (!this.category().description?.trim()) {
+      this.error.set('La descripción es requerida');
+      return;
+    }
+
     this.loading.set(true);
     this.error.set('');
 

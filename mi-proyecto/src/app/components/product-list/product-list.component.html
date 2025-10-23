@@ -100,21 +100,24 @@
           </div>
           
           <h3 class="product-name">{{ product.name }}</h3>
-          
-          <p class="product-description" *ngIf="product.description">
-            {{ product.description }}
-          </p>
 
           <!-- Product Details -->
           <div class="product-details">
             <span class="detail-item" *ngIf="product.size">
               <span class="icon">📏</span>
-              {{ product.size }}
+              {{ product.size.split('-').join(', ') }}
             </span>
-            <span class="detail-item" *ngIf="product.color">
+            <div class="detail-item detail-colors" *ngIf="product.color">
               <span class="icon">🎨</span>
-              {{ product.color }}
-            </span>
+              <div class="color-circles-list">
+                <div 
+                  *ngFor="let colorHex of product.color.split('-')" 
+                  class="color-circle-small"
+                  [style.background-color]="colorHex"
+                  [title]="colorHex"
+                ></div>
+              </div>
+            </div>
             <span class="detail-item" *ngIf="product.stock !== undefined">
               <span class="icon">📦</span>
               {{ product.stock }} unidades

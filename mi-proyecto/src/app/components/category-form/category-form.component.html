@@ -61,6 +61,7 @@
         <label for="description" class="form-label">
           <span class="icon">📝</span>
           Descripción
+          <span class="required">*</span>
         </label>
         <textarea
           id="description"
@@ -69,10 +70,11 @@
           (input)="updateDescription($any($event.target).value)"
           placeholder="Describe brevemente esta categoría..."
           rows="5"
+          required
           [disabled]="loading()"
         ></textarea>
         <small class="form-hint">
-          Opcional: Agrega más detalles sobre esta categoría
+          Agrega detalles sobre esta categoría
         </small>
       </div>
 
@@ -109,7 +111,7 @@
         <button 
           type="submit" 
           class="btn btn-submit"
-          [disabled]="loading() || !category().name.trim()"
+          [disabled]="loading() || !category().name.trim() || !category().description?.trim()"
         >
           <span *ngIf="!loading()" class="icon">
             {{ isEditMode() ? '💾' : '✨' }}
