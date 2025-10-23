@@ -1,4 +1,29 @@
-/* Global Styles */
+/* Global Styles - Fashion Store Theme */
+
+/* Color Palette */
+:root {
+  /* 60% - Backgrounds */
+  --color-white: #FFFFFF;
+  --color-light-gray: #F7F7F7;
+  --color-lighter-gray: #FAFAFA;
+  
+  /* 30% - Texts & Nav */
+  --color-black: #000000;
+  --color-dark-gray: #1A1A1A;
+  --color-medium-gray: #4A4A4A;
+  --color-text-gray: #666666;
+  
+  /* 10% - Accent (Terracota) */
+  --color-accent: #C05621;
+  --color-accent-hover: #A04818;
+  --color-accent-light: #D67341;
+  
+  /* Semantic Colors */
+  --color-success: #2F855A;
+  --color-error: #C53030;
+  --color-warning: #DD6B20;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -6,10 +31,22 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 400;
+  color: var(--color-dark-gray);
+  background-color: var(--color-white);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  color: var(--color-black);
+  line-height: 1.2;
 }
 
 html, body {
@@ -24,30 +61,30 @@ html, body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--color-light-gray);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-medium-gray);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  background: var(--color-black);
 }
 
 /* Smooth Transitions */
 * {
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
 }
 
 /* Selection Color */
 ::selection {
-  background: #667eea;
+  background: var(--color-accent);
   color: white;
 }
 
 ::-moz-selection {
-  background: #667eea;
+  background: var(--color-accent);
   color: white;
 }

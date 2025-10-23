@@ -40,6 +40,14 @@ export class CategoryListComponent implements OnInit {
   showDeleteDialog = signal<boolean>(false);
   itemToDelete = signal<{ id: number; name: string } | null>(null);
 
+  // Pagination
+  currentPage = signal<number>(1);
+  itemsPerPage = signal<number>(10);
+  itemsPerPageOptions = [5, 10, 20];
+
+  // Expose Math for template
+  Math = Math;
+
   constructor(
     private categoryService: CategoryService,
     private router: Router
@@ -111,5 +119,51 @@ export class CategoryListComponent implements OnInit {
       cat.name.toLowerCase().includes(term) || 
       (cat.description?.toLowerCase().includes(term) || false)
     );
+  }
+
+  get paginatedCategories(): Category[] {
+    const filtered = this.filteredCategories;
+    const startIndex = (this.currentPage() - 1) * this.itemsPerPage();
+    const endIndex = startIndex + this.itemsPerPage();
+    return filtered.slice(startIndex, endIndex);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredCategories.length / this.itemsPerPage());
+  }
+
+  get startIndex(): number {
+    return (this.currentPage() - 1) * this.itemsPerPage();
+  }
+
+  changePage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage.set(page);
+    }
+  }
+
+  changeItemsPerPage(value: number): void {
+    this.itemsPerPage.set(value);
+    this.currentPage.set(1);
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const total = this.totalPages;
+    const current = this.currentPage();
+    
+    pages.push(1);
+    
+    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+      if (!pages.includes(i)) {
+        pages.push(i);
+      }
+    }
+    
+    if (total > 1 && !pages.includes(total)) {
+      pages.push(total);
+    }
+    
+    return pages.sort((a, b) => a - b);
   }
 }

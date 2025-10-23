@@ -59,84 +59,168 @@
       </button>
     </div>
 
-    <!-- Products Grid -->
-    <div *ngIf="filteredProducts.length > 0" class="products-grid" @listAnimation>
-      <div *ngFor="let product of filteredProducts" class="product-card">
-        <!-- Product Image -->
-        <div class="product-image">
-          <img 
-            [src]="product.imageUrl || defaultImage" 
-            [alt]="product.name"
-            loading="lazy"
-            (error)="onImageError($event, product.id!)"
-          />
-          <div class="product-overlay">
-            <button 
-              class="btn-icon btn-edit" 
-              (click)="navigateToEdit(product.id!)"
-              title="Editar producto"
-            >
-              ✏️
-            </button>
-            <button 
-              class="btn-icon btn-delete" 
-              (click)="deleteProduct(product.id!, product.name)"
-              title="Eliminar producto"
-            >
-              🗑️
-            </button>
-          </div>
-          <!-- Stock Badge -->
-          <div class="stock-badge" [ngClass]="getStockClass(product.stock)">
-            {{ getStockStatus(product.stock) }}
-          </div>
+    <!-- Products Table -->
+    <div *ngIf="filteredProducts.length > 0" class="table-container" @listAnimation>
+      <!-- Pagination Controls Top -->
+      <div class="pagination-controls">
+        <div class="pagination-info">
+          <span class="info-text">
+            Mostrando {{ startIndex + 1 }} - {{ Math.min(startIndex + itemsPerPage(), filteredProducts.length) }} de {{ filteredProducts.length }} productos
+          </span>
         </div>
+        <div class="items-per-page">
+          <label>Mostrar:</label>
+          <select 
+            [value]="itemsPerPage()" 
+            (change)="changeItemsPerPage(+$any($event.target).value)"
+            class="select-items"
+          >
+            <option *ngFor="let option of itemsPerPageOptions" [value]="option">
+              {{ option }}
+            </option>
+          </select>
+          <span>por página</span>
+        </div>
+      </div>
 
-        <!-- Product Info -->
-        <div class="product-info">
-          <div class="product-category" *ngIf="product.categoryId">
-            <span class="icon">🏷️</span>
-            {{ getCategoryName(product.categoryId) }}
-          </div>
-          
-          <h3 class="product-name">{{ product.name }}</h3>
+      <table class="products-table">
+        <thead>
+          <tr>
+            <th class="th-number">#</th>
+            <th class="th-image">Imagen</th>
+            <th class="th-name">Producto</th>
+            <th class="th-category">Categoría</th>
+            <th class="th-sizes">Tallas</th>
+            <th class="th-colors">Colores</th>
+            <th class="th-price">Precio</th>
+            <th class="th-stock">Stock</th>
+            <th class="th-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of paginatedProducts; let i = index" class="table-row">
+            <!-- Number -->
+            <td class="td-number">
+              <span class="row-number">{{ startIndex + i + 1 }}</span>
+            </td>
 
-          <!-- Product Details -->
-          <div class="product-details">
-            <span class="detail-item" *ngIf="product.size">
-              <span class="icon">📏</span>
-              {{ product.size.split('-').join(', ') }}
-            </span>
-            <div class="detail-item detail-colors" *ngIf="product.color">
-              <span class="icon">🎨</span>
-              <div class="color-circles-list">
+            <!-- Image -->
+            <td class="td-image">
+              <div class="product-thumbnail">
+                <img 
+                  [src]="product.imageUrl || defaultImage" 
+                  [alt]="product.name"
+                  loading="lazy"
+                  (error)="onImageError($event, product.id!)"
+                />
+              </div>
+            </td>
+
+            <!-- Name -->
+            <td class="td-name">
+              <div class="product-name-cell">
+                <span class="product-name-text">{{ product.name }}</span>
+              </div>
+            </td>
+
+            <!-- Category -->
+            <td class="td-category">
+              <span class="category-badge" *ngIf="product.categoryId">
+                <span class="icon">🏷️</span>
+                {{ getCategoryName(product.categoryId) }}
+              </span>
+            </td>
+
+            <!-- Sizes -->
+            <td class="td-sizes">
+              <div class="sizes-list" *ngIf="product.size">
+                <span 
+                  *ngFor="let size of product.size.split('-')" 
+                  class="size-chip"
+                >
+                  {{ size }}
+                </span>
+              </div>
+              <span class="no-data" *ngIf="!product.size">-</span>
+            </td>
+
+            <!-- Colors -->
+            <td class="td-colors">
+              <div class="colors-list" *ngIf="product.color">
                 <div 
                   *ngFor="let colorHex of product.color.split('-')" 
-                  class="color-circle-small"
+                  class="color-circle"
                   [style.background-color]="colorHex"
                   [title]="colorHex"
                 ></div>
               </div>
-            </div>
-            <span class="detail-item" *ngIf="product.stock !== undefined">
-              <span class="icon">📦</span>
-              {{ product.stock }} unidades
-            </span>
-          </div>
+              <span class="no-data" *ngIf="!product.color">-</span>
+            </td>
 
-          <!-- Price -->
-          <div class="product-footer">
-            <div class="product-price">
-              {{ formatPrice(product.price) }}
-            </div>
-            <button 
-              class="btn-quick-edit"
-              (click)="navigateToEdit(product.id!)"
-            >
-              Editar
-            </button>
-          </div>
+            <!-- Price -->
+            <td class="td-price">
+              <span class="price-text">{{ formatPrice(product.price) }}</span>
+            </td>
+
+            <!-- Stock -->
+            <td class="td-stock">
+              <span class="stock-badge" [ngClass]="getStockClass(product.stock)">
+                <span class="stock-number">{{ product.stock }}</span>
+                <span class="stock-label">{{ getStockStatus(product.stock) }}</span>
+              </span>
+            </td>
+
+            <!-- Actions -->
+            <td class="td-actions">
+              <div class="action-buttons">
+                <button 
+                  class="btn-action btn-edit" 
+                  (click)="navigateToEdit(product.id!)"
+                  title="Editar producto"
+                >
+                  <span class="icon">✏️</span>
+                </button>
+                <button 
+                  class="btn-action btn-delete" 
+                  (click)="deleteProduct(product.id!, product.name)"
+                  title="Eliminar producto"
+                >
+                  <span class="icon">🗑️</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination Controls Bottom -->
+      <div class="pagination-footer">
+        <button 
+          class="pagination-btn" 
+          [disabled]="currentPage() === 1"
+          (click)="changePage(currentPage() - 1)"
+        >
+          ← Anterior
+        </button>
+        
+        <div class="pagination-numbers">
+          <button 
+            *ngFor="let page of getPageNumbers()"
+            class="pagination-number"
+            [class.active]="page === currentPage()"
+            (click)="changePage(page)"
+          >
+            {{ page }}
+          </button>
         </div>
+        
+        <button 
+          class="pagination-btn" 
+          [disabled]="currentPage() === totalPages"
+          (click)="changePage(currentPage() + 1)"
+        >
+          Siguiente →
+        </button>
       </div>
     </div>
   </div>

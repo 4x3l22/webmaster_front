@@ -37,8 +37,8 @@
     {{ error() }}
   </div>
 
-  <!-- Categories Grid -->
-  <div *ngIf="!loading() && !error()" class="categories-grid" @listAnimation>
+  <!-- Categories Section -->
+  <div *ngIf="!loading() && !error()" class="categories-section" @listAnimation>
     <div *ngIf="filteredCategories.length === 0" class="empty-state">
       <span class="icon-large">📭</span>
       <h3>No se encontraron categorías</h3>
@@ -49,41 +49,125 @@
       </button>
     </div>
 
-    <div *ngFor="let category of filteredCategories" class="category-card">
-      <div class="card-header">
-        <div class="card-icon">🏷️</div>
-        <div class="card-actions">
-          <button 
-            class="btn-icon btn-edit" 
-            (click)="navigateToEdit(category.id!)"
-            title="Editar"
-          >
-            ✏️
-          </button>
-          <button 
-            class="btn-icon btn-delete" 
-            (click)="deleteCategory(category.id!, category.name)"
-            title="Eliminar"
-          >
-            🗑️
-          </button>
-        </div>
-      </div>
-      
-      <div class="card-content">
-        <h3 class="category-name">{{ category.name }}</h3>
-        <p class="category-description">
-          {{ category.description || 'Sin descripción' }}
-        </p>
-      </div>
-      
-      <div class="card-footer" *ngIf="category.createdAt">
-        <div class="card-meta">
-          <span class="meta-item">
-            <span class="icon-small">📅</span>
-            {{ category.createdAt | date: 'short' }}
+    <!-- Categories Table -->
+    <div *ngIf="filteredCategories.length > 0" class="table-container">
+      <!-- Pagination Controls Top -->
+      <div class="pagination-controls">
+        <div class="pagination-info">
+          <span class="info-text">
+            Mostrando {{ startIndex + 1 }} - {{ Math.min(startIndex + itemsPerPage(), filteredCategories.length) }} de {{ filteredCategories.length }} categorías
           </span>
         </div>
+        <div class="items-per-page">
+          <label>Mostrar:</label>
+          <select 
+            [value]="itemsPerPage()" 
+            (change)="changeItemsPerPage(+$any($event.target).value)"
+            class="select-items"
+          >
+            <option *ngFor="let option of itemsPerPageOptions" [value]="option">
+              {{ option }}
+            </option>
+          </select>
+          <span>por página</span>
+        </div>
+      </div>
+
+      <table class="categories-table">
+        <thead>
+          <tr>
+            <th class="th-number">#</th>
+            <th class="th-icon">Icono</th>
+            <th class="th-name">Nombre</th>
+            <th class="th-description">Descripción</th>
+            <th class="th-date">Fecha de Creación</th>
+            <th class="th-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let category of paginatedCategories; let i = index" class="table-row">
+            <!-- Number -->
+            <td class="td-number">
+              <span class="row-number">{{ startIndex + i + 1 }}</span>
+            </td>
+
+            <!-- Icon -->
+            <td class="td-icon">
+              <div class="category-icon">🏷️</div>
+            </td>
+
+            <!-- Name -->
+            <td class="td-name">
+              <span class="category-name-text">{{ category.name }}</span>
+            </td>
+
+            <!-- Description -->
+            <td class="td-description">
+              <span class="description-text">
+                {{ category.description || 'Sin descripción' }}
+              </span>
+            </td>
+
+            <!-- Date -->
+            <td class="td-date">
+              <span class="date-text" *ngIf="category.createdAt">
+                <span class="icon-small">📅</span>
+                {{ category.createdAt | date: 'dd/MM/yyyy' }}
+              </span>
+              <span class="no-data" *ngIf="!category.createdAt">-</span>
+            </td>
+
+            <!-- Actions -->
+            <td class="td-actions">
+              <div class="action-buttons">
+                <button 
+                  class="btn-action btn-edit" 
+                  (click)="navigateToEdit(category.id!)"
+                  title="Editar"
+                >
+                  <span class="icon">✏️</span>
+                </button>
+                <button 
+                  class="btn-action btn-delete" 
+                  (click)="deleteCategory(category.id!, category.name)"
+                  title="Eliminar"
+                >
+                  <span class="icon">🗑️</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination Controls Bottom -->
+      <div class="pagination-footer">
+        <button 
+          class="pagination-btn" 
+          [disabled]="currentPage() === 1"
+          (click)="changePage(currentPage() - 1)"
+        >
+          ← Anterior
+        </button>
+        
+        <div class="pagination-numbers">
+          <button 
+            *ngFor="let page of getPageNumbers()"
+            class="pagination-number"
+            [class.active]="page === currentPage()"
+            (click)="changePage(page)"
+          >
+            {{ page }}
+          </button>
+        </div>
+        
+        <button 
+          class="pagination-btn" 
+          [disabled]="currentPage() === totalPages"
+          (click)="changePage(currentPage() + 1)"
+        >
+          Siguiente →
+        </button>
       </div>
     </div>
   </div>

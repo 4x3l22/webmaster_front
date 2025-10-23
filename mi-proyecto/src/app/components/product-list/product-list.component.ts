@@ -46,6 +46,14 @@ export class ProductListComponent implements OnInit {
   showDeleteDialog = signal<boolean>(false);
   itemToDelete = signal<{ id: number; name: string } | null>(null);
 
+  // Pagination
+  currentPage = signal<number>(1);
+  itemsPerPage = signal<number>(10);
+  itemsPerPageOptions = [5, 10, 20];
+
+  // Expose Math for template
+  Math = Math;
+
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
@@ -135,6 +143,55 @@ export class ProductListComponent implements OnInit {
     }
 
     return filtered;
+  }
+
+  get paginatedProducts(): Product[] {
+    const filtered = this.filteredProducts;
+    const startIndex = (this.currentPage() - 1) * this.itemsPerPage();
+    const endIndex = startIndex + this.itemsPerPage();
+    return filtered.slice(startIndex, endIndex);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredProducts.length / this.itemsPerPage());
+  }
+
+  get startIndex(): number {
+    return (this.currentPage() - 1) * this.itemsPerPage();
+  }
+
+  changePage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage.set(page);
+    }
+  }
+
+  changeItemsPerPage(value: number): void {
+    this.itemsPerPage.set(value);
+    this.currentPage.set(1); // Reset to first page
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const total = this.totalPages;
+    const current = this.currentPage();
+    
+    // Always show first page
+    pages.push(1);
+    
+    // Show pages around current page
+    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+      if (!pages.includes(i)) {
+        pages.push(i);
+      }
+    }
+    
+    // Always show last page
+    if (total > 1 && !pages.includes(total)) {
+      pages.push(total);
+    }
+    
+    return pages.sort((a, b) => a - b);
   }
 
   getCategoryName(categoryId: number | undefined): string {
