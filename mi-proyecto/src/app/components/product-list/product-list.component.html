@@ -140,4 +140,17 @@
       </div>
     </div>
   </div>
+
+  <!-- Confirm Delete Dialog -->
+  <app-confirm-dialog
+    [show]="showDeleteDialog()"
+    [title]="'¿Eliminar Producto?'"
+    [message]="'¿Estás seguro de que deseas eliminar este producto?'"
+    [itemName]="itemToDelete()?.name || ''"
+    [confirmText]="'Eliminar'"
+    [cancelText]="'Cancelar'"
+    [type]="'danger'"
+    (confirmed)="confirmDelete()"
+    (cancelled)="cancelDelete()"
+  ></app-confirm-dialog>
 </div>

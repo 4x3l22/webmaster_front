@@ -1,0 +1,47 @@
+<div *ngIf="show" class="dialog-overlay" @overlayAnimation (click)="onCancel()">
+  <div class="dialog-container" @dialogAnimation (click)="$event.stopPropagation()">
+    <div class="dialog-header" [ngClass]="'dialog-' + type">
+      <div class="dialog-icon">
+        <span *ngIf="type === 'danger'">⚠️</span>
+        <span *ngIf="type === 'warning'">⚡</span>
+        <span *ngIf="type === 'info'">ℹ️</span>
+      </div>
+      <h3 class="dialog-title">{{ title }}</h3>
+    </div>
+
+    <div class="dialog-body">
+      <p class="dialog-message">{{ message }}</p>
+      <div *ngIf="itemName" class="dialog-item-highlight">
+        <span class="item-label">Elemento:</span>
+        <span class="item-name">{{ itemName }}</span>
+      </div>
+      <p class="dialog-warning" *ngIf="type === 'danger'">
+        Esta acción no se puede deshacer.
+      </p>
+    </div>
+
+    <div class="dialog-footer">
+      <button 
+        class="dialog-btn dialog-btn-cancel" 
+        (click)="onCancel()"
+        type="button"
+      >
+        <span class="btn-icon">✖️</span>
+        {{ cancelText }}
+      </button>
+      <button 
+        class="dialog-btn dialog-btn-confirm" 
+        [ngClass]="'dialog-btn-' + type"
+        (click)="onConfirm()"
+        type="button"
+      >
+        <span class="btn-icon">
+          <span *ngIf="type === 'danger'">🗑️</span>
+          <span *ngIf="type === 'warning'">⚠️</span>
+          <span *ngIf="type === 'info'">✓</span>
+        </span>
+        {{ confirmText }}
+      </button>
+    </div>
+  </div>
+</div>

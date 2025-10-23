@@ -87,4 +87,17 @@
       </div>
     </div>
   </div>
+
+  <!-- Confirm Delete Dialog -->
+  <app-confirm-dialog
+    [show]="showDeleteDialog()"
+    [title]="'¿Eliminar Categoría?'"
+    [message]="'¿Estás seguro de que deseas eliminar esta categoría?'"
+    [itemName]="itemToDelete()?.name || ''"
+    [confirmText]="'Eliminar'"
+    [cancelText]="'Cancelar'"
+    [type]="'danger'"
+    (confirmed)="confirmDelete()"
+    (cancelled)="cancelDelete()"
+  ></app-confirm-dialog>
 </div>

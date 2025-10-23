@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ProductService, Product } from '../../services/product.service';
 import { CategoryService } from '../../services/category.service';
+import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.component';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ConfirmDialogComponent],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.css'],
   animations: [
@@ -40,6 +41,10 @@ export class ProductListComponent implements OnInit {
   selectedFilter = signal<string>('all');
   imageErrorCounts = signal<Map<number, number>>(new Map());
   defaultImage = 'https://imgs.search.brave.com/vLZ44Uli4ZlkgAjdMiftogg6vX7--GvMQWTk4ZDQ8zc/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/cmVkZGl0c3RhdGlj/LmNvbS9hdmF0YXJz/L2RlZmF1bHRzL3Yy/L2F2YXRhcl9kZWZh/dWx0XzcucG5n';
+  
+  // Confirm Dialog
+  showDeleteDialog = signal<boolean>(false);
+  itemToDelete = signal<{ id: number; name: string } | null>(null);
 
   constructor(
     private productService: ProductService,
@@ -89,17 +94,32 @@ export class ProductListComponent implements OnInit {
   }
 
   deleteProduct(id: number, name: string): void {
-    if (confirm(`¿Estás seguro de eliminar "${name}"?`)) {
-      this.productService.deleteProduct(id).subscribe({
-        next: () => {
-          this.loadProducts();
-        },
-        error: (err) => {
-          alert('Error al eliminar el producto');
-          console.error(err);
-        }
-      });
-    }
+    this.itemToDelete.set({ id, name });
+    this.showDeleteDialog.set(true);
+  }
+
+  confirmDelete(): void {
+    const item = this.itemToDelete();
+    if (!item) return;
+
+    this.productService.deleteProduct(item.id).subscribe({
+      next: () => {
+        this.showDeleteDialog.set(false);
+        this.itemToDelete.set(null);
+        this.loadProducts();
+      },
+      error: (err) => {
+        console.error('Error al eliminar el producto:', err);
+        this.showDeleteDialog.set(false);
+        this.itemToDelete.set(null);
+        this.error.set('Error al eliminar el producto');
+      }
+    });
+  }
+
+  cancelDelete(): void {
+    this.showDeleteDialog.set(false);
+    this.itemToDelete.set(null);
   }
 
   get filteredProducts(): Product[] {

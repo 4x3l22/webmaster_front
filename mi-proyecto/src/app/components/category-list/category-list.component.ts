@@ -2,12 +2,13 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CategoryService, Category } from '../../services/category.service';
+import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.component';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 
 @Component({
   selector: 'app-category-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ConfirmDialogComponent],
   templateUrl: './category-list.component.html',
   styleUrls: ['./category-list.component.css'],
   animations: [
@@ -34,6 +35,10 @@ export class CategoryListComponent implements OnInit {
   loading = signal<boolean>(true);
   error = signal<string>('');
   searchTerm = signal<string>('');
+  
+  // Confirm Dialog
+  showDeleteDialog = signal<boolean>(false);
+  itemToDelete = signal<{ id: number; name: string } | null>(null);
 
   constructor(
     private categoryService: CategoryService,
@@ -70,17 +75,32 @@ export class CategoryListComponent implements OnInit {
   }
 
   deleteCategory(id: number, name: string): void {
-    if (confirm(`¿Estás seguro de eliminar la categoría "${name}"?`)) {
-      this.categoryService.deleteCategory(id).subscribe({
-        next: () => {
-          this.loadCategories();
-        },
-        error: (err) => {
-          alert('Error al eliminar la categoría');
-          console.error(err);
-        }
-      });
-    }
+    this.itemToDelete.set({ id, name });
+    this.showDeleteDialog.set(true);
+  }
+
+  confirmDelete(): void {
+    const item = this.itemToDelete();
+    if (!item) return;
+
+    this.categoryService.deleteCategory(item.id).subscribe({
+      next: () => {
+        this.showDeleteDialog.set(false);
+        this.itemToDelete.set(null);
+        this.loadCategories();
+      },
+      error: (err) => {
+        console.error('Error al eliminar la categoría:', err);
+        this.showDeleteDialog.set(false);
+        this.itemToDelete.set(null);
+        this.error.set('Error al eliminar la categoría');
+      }
+    });
+  }
+
+  cancelDelete(): void {
+    this.showDeleteDialog.set(false);
+    this.itemToDelete.set(null);
   }
 
   get filteredCategories(): Category[] {
