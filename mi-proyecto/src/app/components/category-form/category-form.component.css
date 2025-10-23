@@ -1,6 +1,6 @@
 .form-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-light-gray);
   padding: 2rem;
   display: flex;
   align-items: center;
@@ -13,7 +13,7 @@
 .decoration {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(192, 86, 33, 0.05);
   animation: float 6s ease-in-out infinite;
 }
 
@@ -280,7 +280,7 @@
 
 .preview-icon {
   font-size: 2.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-accent);
   width: 60px;
   height: 60px;
   border-radius: 12px;
@@ -335,25 +335,29 @@
 }
 
 .btn-cancel {
-  background: #f7fafc;
-  color: #4a5568;
-  border: 2px solid #e2e8f0;
+  background: var(--color-white);
+  color: var(--color-dark-gray);
+  border: 2px solid var(--color-border);
 }
 
 .btn-cancel:hover:not(:disabled) {
-  background: #e2e8f0;
+  background: var(--color-light-gray);
+  border-color: var(--color-medium-gray);
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 .btn-submit {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  background: var(--color-accent);
+  color: var(--color-white);
+  box-shadow: 0 4px 15px rgba(192, 86, 33, 0.4);
+  border: none;
 }
 
 .btn-submit:hover:not(:disabled) {
+  background: #A84A1C;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  box-shadow: 0 6px 20px rgba(192, 86, 33, 0.6);
 }
 
 .btn-submit:active:not(:disabled) {

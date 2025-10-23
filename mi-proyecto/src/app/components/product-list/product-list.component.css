@@ -642,7 +642,47 @@
   display: inline-block;
 }
 
-/* Responsive Design */
+/* Mobile Accordion - Hidden by default, shown on mobile */
+.mobile-accordion-wrapper {
+  display: none;
+}
+
+/* Responsive Design - Tablets */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .products-table {
+    font-size: 0.875rem;
+  }
+
+  .products-table th,
+  .products-table td {
+    padding: 0.875rem 0.75rem;
+  }
+
+  .product-thumbnail {
+    width: 55px;
+    height: 55px;
+  }
+
+  .product-name-text {
+    font-size: 1rem;
+  }
+
+  .price-text {
+    font-size: 1.125rem;
+  }
+
+  .color-circle {
+    width: 24px;
+    height: 24px;
+  }
+
+  .size-chip {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* Responsive Design - Mobile */
 @media (max-width: 768px) {
   .hero-header {
     padding: 2rem 1rem;
@@ -685,43 +725,188 @@
     justify-content: center;
   }
 
-  /* Responsive Table */
+  /* Responsive Table - Cards for Mobile */
   .table-container {
-    overflow-x: auto;
     border-radius: 0;
   }
 
   .products-table {
-    min-width: 900px;
+    display: block;
   }
 
-  .products-table th,
+  .products-table thead {
+    display: none;
+  }
+
+  .products-table tbody {
+    display: block;
+  }
+
+  .products-table tbody tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    background: var(--color-white);
+  }
+
+  /* Hide all regular table cells on mobile, show only first one with accordion */
   .products-table td {
-    padding: 0.75rem 0.5rem;
-    font-size: 0.875rem;
+    display: none;
   }
 
-  .product-thumbnail {
+  .products-table td.td-number {
+    display: block !important;
+    padding: 0;
+    border: none;
+  }
+
+  .products-table td.td-number .row-number {
+    display: none;
+  }
+
+  /* Mobile Accordion Wrapper - Show on mobile */
+  .mobile-accordion-wrapper {
+    display: block;
+    width: 100%;
+  }
+
+  /* Mobile Accordion Header */
+  .mobile-accordion-header {
+    padding: 1rem;
+    background: var(--color-white);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s ease;
+  }
+
+  .mobile-accordion-header:active {
+    background: var(--color-light-gray);
+  }
+
+  .mobile-header-content {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+  }
+
+  .mobile-number {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--color-accent);
+    font-family: 'Inter', sans-serif;
+    min-width: 28px;
+    flex-shrink: 0;
+  }
+
+  .mobile-thumbnail {
     width: 50px;
     height: 50px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    flex-shrink: 0;
   }
 
-  .product-name-text {
-    font-size: 0.938rem;
+  .mobile-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
-  .price-text {
+  .mobile-name {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--color-black);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  .mobile-toggle {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: var(--color-accent);
     font-size: 1.125rem;
+    flex-shrink: 0;
+    line-height: 1;
   }
 
-  .stock-number {
-    font-size: 1.125rem;
+  .mobile-icon {
+    display: inline-block;
+    transition: transform 0.3s ease;
   }
 
-  .btn-action {
-    width: 32px;
-    height: 32px;
-    font-size: 0.875rem;
+  /* Mobile Accordion Body */
+  .mobile-accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--color-white);
+  }
+
+  .mobile-accordion-body.expanded {
+    max-height: 2000px;
+    border-top: 2px solid var(--color-border);
+  }
+
+  .mobile-body-content {
+    padding: 0;
+  }
+
+  .mobile-detail-item {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .mobile-detail-item:last-child {
+    border-bottom: none;
+  }
+
+  .mobile-label {
+    display: block;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    color: var(--color-black);
+    font-size: 0.813rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+  }
+
+  .mobile-detail-item .product-thumbnail {
+    width: 100px;
+    height: 100px;
+    margin: 0;
+  }
+
+  .mobile-detail-item .price-text {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .mobile-detail-item .stock-badge {
+    display: inline-flex;
+  }
+
+  .mobile-actions {
+    background: var(--color-light-gray);
+  }
+
+  .mobile-actions .action-buttons {
+    display: flex;
+    justify-content: flex-start;
+    gap: 0.75rem;
+  }
+
+  .mobile-actions .btn-action {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
   }
 
   /* Pagination Footer */

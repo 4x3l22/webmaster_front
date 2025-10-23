@@ -7,7 +7,7 @@
         Gestión de Categorías
       </h1>
       <button class="btn-create" (click)="navigateToCreate()">
-        <span class="icon">✨</span>
+        <span class="icon">➕</span>
         Nueva Categoría
       </button>
     </div>
@@ -44,7 +44,7 @@
       <h3>No se encontraron categorías</h3>
       <p>Crea tu primera categoría para comenzar</p>
       <button class="btn-create" (click)="navigateToCreate()">
-        <span class="icon">✨</span>
+        <span class="icon">➕</span>
         Crear Categoría
       </button>
     </div>
@@ -87,29 +87,82 @@
         <tbody>
           <tr *ngFor="let category of paginatedCategories; let i = index" class="table-row">
             <!-- Number -->
-            <td class="td-number">
+            <td class="td-number" data-label="#">
+              <div class="mobile-accordion-wrapper">
+                <!-- Mobile Accordion Header -->
+                <div class="mobile-accordion-header" (click)="toggleAccordion(category.id!)">
+                  <div class="mobile-header-content">
+                    <span class="mobile-number">{{ startIndex + i + 1 }}</span>
+                    <div class="mobile-icon">🏷️</div>
+                    <span class="mobile-name">{{ category.name }}</span>
+                    <button class="mobile-toggle" type="button">
+                      <span class="mobile-icon-arrow">{{ isExpanded(category.id!) ? '▼' : '►' }}</span>
+                    </button>
+                  </div>
+                </div>
+                <!-- Mobile Accordion Body -->
+                <div class="mobile-accordion-body" [class.expanded]="isExpanded(category.id!)">
+                  <div class="mobile-body-content">
+                    <!-- Description -->
+                    <div class="mobile-detail-item">
+                      <span class="mobile-label">Descripción</span>
+                      <span class="description-text">
+                        {{ category.description || 'Sin descripción' }}
+                      </span>
+                    </div>
+                    <!-- Date -->
+                    <div class="mobile-detail-item">
+                      <span class="mobile-label">Fecha de Creación</span>
+                      <span class="date-text" *ngIf="category.createdAt">
+                        <span class="icon-small">📅</span>
+                        {{ category.createdAt | date: 'dd/MM/yyyy' }}
+                      </span>
+                      <span class="no-data" *ngIf="!category.createdAt">-</span>
+                    </div>
+                    <!-- Actions -->
+                    <div class="mobile-detail-item mobile-actions">
+                      <div class="action-buttons">
+                        <button 
+                          class="btn-action btn-edit" 
+                          (click)="navigateToEdit(category.id!)"
+                          title="Editar"
+                        >
+                          <span class="icon">✏️</span>
+                        </button>
+                        <button 
+                          class="btn-action btn-delete" 
+                          (click)="deleteCategory(category.id!, category.name)"
+                          title="Eliminar"
+                        >
+                          <span class="icon">🗑️</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <span class="row-number">{{ startIndex + i + 1 }}</span>
             </td>
 
             <!-- Icon -->
-            <td class="td-icon">
+            <td class="td-icon" data-label="Icono">
               <div class="category-icon">🏷️</div>
             </td>
 
             <!-- Name -->
-            <td class="td-name">
+            <td class="td-name" data-label="Nombre">
               <span class="category-name-text">{{ category.name }}</span>
             </td>
 
             <!-- Description -->
-            <td class="td-description">
+            <td class="td-description" data-label="Descripción">
               <span class="description-text">
                 {{ category.description || 'Sin descripción' }}
               </span>
             </td>
 
             <!-- Date -->
-            <td class="td-date">
+            <td class="td-date" data-label="Fecha de Creación">
               <span class="date-text" *ngIf="category.createdAt">
                 <span class="icon-small">📅</span>
                 {{ category.createdAt | date: 'dd/MM/yyyy' }}
@@ -118,7 +171,7 @@
             </td>
 
             <!-- Actions -->
-            <td class="td-actions">
+            <td class="td-actions" data-label="Acciones">
               <div class="action-buttons">
                 <button 
                   class="btn-action btn-edit" 

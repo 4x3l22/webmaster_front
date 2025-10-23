@@ -51,6 +51,9 @@ export class ProductListComponent implements OnInit {
   itemsPerPage = signal<number>(10);
   itemsPerPageOptions = [5, 10, 20];
 
+  // Accordion for mobile
+  expandedItems = signal<Set<number>>(new Set());
+
   // Expose Math for template
   Math = Math;
 
@@ -227,5 +230,22 @@ export class ProductListComponent implements OnInit {
       errorCounts.set(productId, currentCount + 1);
       this.imageErrorCounts.set(errorCounts);
     }
+  }
+
+  toggleAccordion(productId: number): void {
+    const expanded = this.expandedItems();
+    const newExpanded = new Set(expanded);
+    
+    if (newExpanded.has(productId)) {
+      newExpanded.delete(productId);
+    } else {
+      newExpanded.add(productId);
+    }
+    
+    this.expandedItems.set(newExpanded);
+  }
+
+  isExpanded(productId: number): boolean {
+    return this.expandedItems().has(productId);
   }
 }

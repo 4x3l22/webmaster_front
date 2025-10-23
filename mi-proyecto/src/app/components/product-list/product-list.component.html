@@ -100,12 +100,116 @@
         <tbody>
           <tr *ngFor="let product of paginatedProducts; let i = index" class="table-row">
             <!-- Number -->
-            <td class="td-number">
+            <td class="td-number" data-label="#">
+              <div class="mobile-accordion-wrapper">
+                <!-- Mobile Accordion Header -->
+                <div class="mobile-accordion-header" (click)="toggleAccordion(product.id!)">
+                  <div class="mobile-header-content">
+                    <span class="mobile-number">{{ startIndex + i + 1 }}</span>
+                    <div class="mobile-thumbnail">
+                      <img 
+                        [src]="product.imageUrl || defaultImage" 
+                        [alt]="product.name"
+                        loading="lazy"
+                        (error)="onImageError($event, product.id!)"
+                      />
+                    </div>
+                    <span class="mobile-name">{{ product.name }}</span>
+                    <button class="mobile-toggle" type="button">
+                      <span class="mobile-icon">{{ isExpanded(product.id!) ? '▼' : '►' }}</span>
+                    </button>
+                  </div>
+                </div>
+                <!-- Mobile Accordion Body -->
+                <div class="mobile-accordion-body" [class.expanded]="isExpanded(product.id!)">
+                  <div class="mobile-body-content">
+                    <!-- Image -->
+                    <div class="mobile-detail-item">
+                      <span class="mobile-label">Imagen</span>
+                      <div class="product-thumbnail">
+                        <img 
+                          [src]="product.imageUrl || defaultImage" 
+                          [alt]="product.name"
+                          loading="lazy"
+                          (error)="onImageError($event, product.id!)"
+                        />
+                      </div>
+                    </div>
+                    <!-- Category -->
+                    <div class="mobile-detail-item">
+                      <span class="mobile-label">Categoría</span>
+                      <span class="category-badge" *ngIf="product.categoryId">
+                        <span class="icon">🏷️</span>
+                        {{ getCategoryName(product.categoryId) }}
+                      </span>
+                      <span class="no-data" *ngIf="!product.categoryId">-</span>
+                    </div>
+                    <!-- Sizes -->
+                    <div class="mobile-detail-item">
+                      <span class="mobile-label">Tallas</span>
+                      <div class="sizes-list" *ngIf="product.size">
+                        <span 
+                          *ngFor="let size of product.size.split('-')" 
+                          class="size-chip"
+                        >
+                          {{ size }}
+                        </span>
+                      </div>
+                      <span class="no-data" *ngIf="!product.size">-</span>
+                    </div>
+                    <!-- Colors -->
+                    <div class="mobile-detail-item">
+                      <span class="mobile-label">Colores</span>
+                      <div class="colors-list" *ngIf="product.color">
+                        <div 
+                          *ngFor="let colorHex of product.color.split('-')" 
+                          class="color-circle"
+                          [style.background-color]="colorHex"
+                          [title]="colorHex"
+                        ></div>
+                      </div>
+                      <span class="no-data" *ngIf="!product.color">-</span>
+                    </div>
+                    <!-- Price -->
+                    <div class="mobile-detail-item">
+                      <span class="mobile-label">Precio</span>
+                      <span class="price-text">{{ formatPrice(product.price) }}</span>
+                    </div>
+                    <!-- Stock -->
+                    <div class="mobile-detail-item">
+                      <span class="mobile-label">Stock</span>
+                      <span class="stock-badge" [ngClass]="getStockClass(product.stock)">
+                        <span class="stock-number">{{ product.stock }}</span>
+                        <span class="stock-label">{{ getStockStatus(product.stock) }}</span>
+                      </span>
+                    </div>
+                    <!-- Actions -->
+                    <div class="mobile-detail-item mobile-actions">
+                      <div class="action-buttons">
+                        <button 
+                          class="btn-action btn-edit" 
+                          (click)="navigateToEdit(product.id!)"
+                          title="Editar producto"
+                        >
+                          <span class="icon">✏️</span>
+                        </button>
+                        <button 
+                          class="btn-action btn-delete" 
+                          (click)="deleteProduct(product.id!, product.name)"
+                          title="Eliminar producto"
+                        >
+                          <span class="icon">🗑️</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <span class="row-number">{{ startIndex + i + 1 }}</span>
             </td>
 
             <!-- Image -->
-            <td class="td-image">
+            <td class="td-image" data-label="Imagen">
               <div class="product-thumbnail">
                 <img 
                   [src]="product.imageUrl || defaultImage" 
@@ -117,14 +221,14 @@
             </td>
 
             <!-- Name -->
-            <td class="td-name">
+            <td class="td-name" data-label="Producto">
               <div class="product-name-cell">
                 <span class="product-name-text">{{ product.name }}</span>
               </div>
             </td>
 
             <!-- Category -->
-            <td class="td-category">
+            <td class="td-category" data-label="Categoría">
               <span class="category-badge" *ngIf="product.categoryId">
                 <span class="icon">🏷️</span>
                 {{ getCategoryName(product.categoryId) }}
@@ -132,7 +236,7 @@
             </td>
 
             <!-- Sizes -->
-            <td class="td-sizes">
+            <td class="td-sizes" data-label="Tallas">
               <div class="sizes-list" *ngIf="product.size">
                 <span 
                   *ngFor="let size of product.size.split('-')" 
@@ -145,7 +249,7 @@
             </td>
 
             <!-- Colors -->
-            <td class="td-colors">
+            <td class="td-colors" data-label="Colores">
               <div class="colors-list" *ngIf="product.color">
                 <div 
                   *ngFor="let colorHex of product.color.split('-')" 
@@ -158,12 +262,12 @@
             </td>
 
             <!-- Price -->
-            <td class="td-price">
+            <td class="td-price" data-label="Precio">
               <span class="price-text">{{ formatPrice(product.price) }}</span>
             </td>
 
             <!-- Stock -->
-            <td class="td-stock">
+            <td class="td-stock" data-label="Stock">
               <span class="stock-badge" [ngClass]="getStockClass(product.stock)">
                 <span class="stock-number">{{ product.stock }}</span>
                 <span class="stock-label">{{ getStockStatus(product.stock) }}</span>
@@ -171,7 +275,7 @@
             </td>
 
             <!-- Actions -->
-            <td class="td-actions">
+            <td class="td-actions" data-label="Acciones">
               <div class="action-buttons">
                 <button 
                   class="btn-action btn-edit" 

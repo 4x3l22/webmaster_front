@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Background Circle -->
+  <circle cx="50" cy="50" r="48" fill="#C05621"/>
+  
+  <!-- White Hanger Icon -->
+  <g fill="white">
+    <!-- Hanger Hook -->
+    <path d="M 50 20 Q 45 20 45 25 Q 45 30 50 30 Q 55 30 55 25 Q 55 20 50 20 Z"/>
+    <rect x="48" y="28" width="4" height="8" rx="2"/>
+    
+    <!-- Hanger Bar -->
+    <path d="M 25 45 L 48 36 L 48 42 L 30 48 L 30 52 L 70 52 L 70 48 L 52 42 L 52 36 L 75 45 Q 78 46 78 50 L 78 54 Q 78 58 74 58 L 26 58 Q 22 58 22 54 L 22 50 Q 22 46 25 45 Z"/>
+    
+    <!-- Dress/Shirt Silhouette -->
+    <path d="M 35 58 L 38 75 Q 39 80 44 80 L 56 80 Q 61 80 62 75 L 65 58 Z" opacity="0.9"/>
+  </g>
+  
+  <!-- Accent Line -->
+  <circle cx="50" cy="50" r="46" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
+</svg>

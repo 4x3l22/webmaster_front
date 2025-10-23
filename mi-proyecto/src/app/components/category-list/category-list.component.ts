@@ -45,6 +45,9 @@ export class CategoryListComponent implements OnInit {
   itemsPerPage = signal<number>(10);
   itemsPerPageOptions = [5, 10, 20];
 
+  // Accordion state for mobile
+  expandedItems = signal<Set<number>>(new Set());
+
   // Expose Math for template
   Math = Math;
 
@@ -165,5 +168,20 @@ export class CategoryListComponent implements OnInit {
     }
     
     return pages.sort((a, b) => a - b);
+  }
+
+  // Accordion methods for mobile view
+  toggleAccordion(categoryId: number): void {
+    const expanded = this.expandedItems();
+    if (expanded.has(categoryId)) {
+      expanded.delete(categoryId);
+    } else {
+      expanded.add(categoryId);
+    }
+    this.expandedItems.set(new Set(expanded));
+  }
+
+  isExpanded(categoryId: number): boolean {
+    return this.expandedItems().has(categoryId);
   }
 }
