@@ -1,20 +1,26 @@
 <nav class="navbar" @slideDown>
   <div class="navbar-container">
     <div class="navbar-brand">
-      <span class="logo-icon">�</span>
+      <span class="logo-icon">🛍</span>
       <span class="logo-text">Fashion Store</span>
     </div>
     
-    <div class="navbar-menu">
-      <a routerLink="/products" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}" class="nav-link">
+    <button class="hamburger" (click)="toggleMenu()" [class.active]="isMenuOpen">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    
+    <div class="navbar-menu" [class.active]="isMenuOpen">
+      <a routerLink="/products" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}" class="nav-link" (click)="closeMenu()">
         <span class="icon">👕</span>
         Productos
       </a>
-      <a routerLink="/categories" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}" class="nav-link">
+      <a routerLink="/categories" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}" class="nav-link" (click)="closeMenu()">
         <span class="icon">📂</span>
         Categorías
       </a>
-      <a routerLink="/products/create" class="nav-link nav-link-cta">
+      <a routerLink="/products/create" class="nav-link nav-link-cta" (click)="closeMenu()">
         <span class="icon">➕</span>
         Nuevo Producto
       </a>
