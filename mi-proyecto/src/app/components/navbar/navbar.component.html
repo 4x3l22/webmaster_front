@@ -1,0 +1,23 @@
+<nav class="navbar" @slideDown>
+  <div class="navbar-container">
+    <div class="navbar-brand">
+      <span class="logo-icon">�</span>
+      <span class="logo-text">Fashion Store</span>
+    </div>
+    
+    <div class="navbar-menu">
+      <a routerLink="/products" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}" class="nav-link">
+        <span class="icon">👕</span>
+        Productos
+      </a>
+      <a routerLink="/categories" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}" class="nav-link">
+        <span class="icon">📂</span>
+        Categorías
+      </a>
+      <a routerLink="/products/create" class="nav-link nav-link-cta">
+        <span class="icon">➕</span>
+        Nuevo Producto
+      </a>
+    </div>
+  </div>
+</nav>

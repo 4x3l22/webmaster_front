@@ -1,0 +1,90 @@
+<div class="categories-container" @fadeIn>
+  <!-- Header Section -->
+  <div class="header">
+    <div class="header-content">
+      <h1 class="title">
+        <span class="icon">📂</span>
+        Gestión de Categorías
+      </h1>
+      <button class="btn-create" (click)="navigateToCreate()">
+        <span class="icon">✨</span>
+        Nueva Categoría
+      </button>
+    </div>
+    
+    <!-- Search Bar -->
+    <div class="search-container">
+      <span class="search-icon">🔍</span>
+      <input 
+        type="text" 
+        class="search-input"
+        placeholder="Buscar categorías..."
+        [value]="searchTerm()"
+        (input)="searchTerm.set($any($event.target).value)"
+      />
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="loading">
+    <div class="spinner"></div>
+    <p>Cargando categorías...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error() && !loading()" class="error-message">
+    <span class="icon">⚠️</span>
+    {{ error() }}
+  </div>
+
+  <!-- Categories Grid -->
+  <div *ngIf="!loading() && !error()" class="categories-grid" @listAnimation>
+    <div *ngIf="filteredCategories.length === 0" class="empty-state">
+      <span class="icon-large">📭</span>
+      <h3>No se encontraron categorías</h3>
+      <p>Crea tu primera categoría para comenzar</p>
+      <button class="btn-create" (click)="navigateToCreate()">
+        <span class="icon">✨</span>
+        Crear Categoría
+      </button>
+    </div>
+
+    <div *ngFor="let category of filteredCategories" class="category-card">
+      <div class="card-header">
+        <div class="card-icon">🏷️</div>
+        <div class="card-actions">
+          <button 
+            class="btn-icon btn-edit" 
+            (click)="navigateToEdit(category.id!)"
+            title="Editar"
+          >
+            ✏️
+          </button>
+          <button 
+            class="btn-icon btn-delete" 
+            (click)="deleteCategory(category.id!, category.name)"
+            title="Eliminar"
+          >
+            🗑️
+          </button>
+        </div>
+      </div>
+      
+      <div class="card-content">
+        <h3 class="category-name">{{ category.name }}</h3>
+        <p class="category-description">
+          {{ category.description || 'Sin descripción' }}
+        </p>
+      </div>
+      
+      <div class="card-footer" *ngIf="category.createdAt">
+        <div class="card-meta">
+          <span class="meta-item">
+            <span class="icon-small">📅</span>
+            {{ category.createdAt | date: 'short' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

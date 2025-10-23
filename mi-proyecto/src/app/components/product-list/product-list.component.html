@@ -1,0 +1,140 @@
+<div class="products-container" @fadeIn>
+  <!-- Hero Header -->
+  <div class="hero-header">
+    <div class="hero-content">
+      <div class="hero-text">
+        <h1 class="hero-title">
+          <span class="icon">👕</span>
+          Nuestra Colección
+        </h1>
+        <p class="hero-subtitle">Descubre las últimas tendencias en moda</p>
+      </div>
+      <button class="btn-add-product" (click)="navigateToCreate()">
+        <span class="icon">➕</span>
+        Agregar Producto
+      </button>
+    </div>
+    
+    <!-- Search Bar -->
+    <div class="search-container">
+      <span class="search-icon">🔍</span>
+      <input 
+        type="text" 
+        class="search-input"
+        placeholder="Buscar productos, categorías..."
+        [value]="searchTerm()"
+        (input)="searchTerm.set($any($event.target).value)"
+      />
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="loading-state">
+    <div class="fashion-spinner">
+      <div class="spinner-item">👗</div>
+      <div class="spinner-item">👔</div>
+      <div class="spinner-item">👕</div>
+      <div class="spinner-item">👖</div>
+    </div>
+    <p class="loading-text">Cargando productos...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error() && !loading()" class="error-state">
+    <span class="error-icon">⚠️</span>
+    <p>{{ error() }}</p>
+    <button class="btn-retry" (click)="loadProducts()">Reintentar</button>
+  </div>
+
+  <!-- Products Grid -->
+  <div *ngIf="!loading() && !error()" class="products-section">
+    <!-- Empty State -->
+    <div *ngIf="filteredProducts.length === 0" class="empty-state">
+      <div class="empty-icon">🛍️</div>
+      <h3>No hay productos disponibles</h3>
+      <p>Comienza agregando productos a tu tienda</p>
+      <button class="btn-add-product" (click)="navigateToCreate()">
+        <span class="icon">✨</span>
+        Agregar Primer Producto
+      </button>
+    </div>
+
+    <!-- Products Grid -->
+    <div *ngIf="filteredProducts.length > 0" class="products-grid" @listAnimation>
+      <div *ngFor="let product of filteredProducts" class="product-card">
+        <!-- Product Image -->
+        <div class="product-image">
+          <img 
+            [src]="product.imageUrl || defaultImage" 
+            [alt]="product.name"
+            loading="lazy"
+            (error)="onImageError($event, product.id!)"
+          />
+          <div class="product-overlay">
+            <button 
+              class="btn-icon btn-edit" 
+              (click)="navigateToEdit(product.id!)"
+              title="Editar producto"
+            >
+              ✏️
+            </button>
+            <button 
+              class="btn-icon btn-delete" 
+              (click)="deleteProduct(product.id!, product.name)"
+              title="Eliminar producto"
+            >
+              🗑️
+            </button>
+          </div>
+          <!-- Stock Badge -->
+          <div class="stock-badge" [ngClass]="getStockClass(product.stock)">
+            {{ getStockStatus(product.stock) }}
+          </div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="product-info">
+          <div class="product-category" *ngIf="product.categoryId">
+            <span class="icon">🏷️</span>
+            {{ getCategoryName(product.categoryId) }}
+          </div>
+          
+          <h3 class="product-name">{{ product.name }}</h3>
+          
+          <p class="product-description" *ngIf="product.description">
+            {{ product.description }}
+          </p>
+
+          <!-- Product Details -->
+          <div class="product-details">
+            <span class="detail-item" *ngIf="product.size">
+              <span class="icon">📏</span>
+              {{ product.size }}
+            </span>
+            <span class="detail-item" *ngIf="product.color">
+              <span class="icon">🎨</span>
+              {{ product.color }}
+            </span>
+            <span class="detail-item" *ngIf="product.stock !== undefined">
+              <span class="icon">📦</span>
+              {{ product.stock }} unidades
+            </span>
+          </div>
+
+          <!-- Price -->
+          <div class="product-footer">
+            <div class="product-price">
+              {{ formatPrice(product.price) }}
+            </div>
+            <button 
+              class="btn-quick-edit"
+              (click)="navigateToEdit(product.id!)"
+            >
+              Editar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

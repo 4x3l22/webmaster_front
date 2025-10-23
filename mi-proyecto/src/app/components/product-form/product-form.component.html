@@ -1,0 +1,269 @@
+<div class="form-container" @fadeIn>
+  <!-- Success Message -->
+  <div *ngIf="success()" class="success-overlay" @fadeIn>
+    <div class="success-card">
+      <div class="success-icon">🎉</div>
+      <h2>¡Producto {{ isEditMode() ? 'actualizado' : 'creado' }}!</h2>
+      <p>Tu producto ha sido guardado exitosamente</p>
+    </div>
+  </div>
+
+  <!-- Form Card -->
+  <div class="form-card" @slideIn>
+    <div class="form-header">
+      <button class="btn-back" (click)="cancel()">
+        <span class="icon">←</span>
+      </button>
+      <h1 class="form-title">
+        <span class="icon">{{ isEditMode() ? '✏️' : '✨' }}</span>
+        {{ isEditMode() ? 'Editar Producto' : 'Nuevo Producto' }}
+      </h1>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading() && isEditMode()" class="loading">
+      <div class="spinner"></div>
+      <p>Cargando producto...</p>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="error()" class="error-message" @fadeIn>
+      <span class="icon">⚠️</span>
+      {{ error() }}
+    </div>
+
+    <!-- Form -->
+    <form *ngIf="!loading() || !isEditMode()" (ngSubmit)="onSubmit()" class="form">
+      <div class="form-grid">
+        <!-- Left Column -->
+        <div class="form-column">
+          <!-- Product Name -->
+          <div class="form-group">
+            <label for="name" class="form-label">
+              <span class="icon">👕</span>
+              Nombre del Producto
+              <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="name"
+              class="form-input"
+              [value]="product().name"
+              (input)="updateField('name', $any($event.target).value)"
+              placeholder="Ej: Camiseta Básica, Jeans Slim Fit..."
+              required
+              [disabled]="loading()"
+            />
+          </div>
+
+          <!-- Description -->
+          <div class="form-group">
+            <label for="description" class="form-label">
+              <span class="icon">📝</span>
+              Descripción
+            </label>
+            <textarea
+              id="description"
+              class="form-textarea"
+              [value]="product().description || ''"
+              (input)="updateField('description', $any($event.target).value)"
+              placeholder="Describe el producto, material, características especiales..."
+              rows="4"
+              [disabled]="loading()"
+            ></textarea>
+          </div>
+
+          <!-- Category -->
+          <div class="form-group">
+            <label for="category" class="form-label">
+              <span class="icon">🏷️</span>
+              Categoría
+            </label>
+            <select
+              id="category"
+              class="form-select"
+              [value]="product().categoryId || ''"
+              (change)="updateField('categoryId', +$any($event.target).value)"
+              [disabled]="loading()"
+            >
+              <option value="">Seleccionar categoría</option>
+              <option *ngFor="let cat of categories()" [value]="cat.id">{{ cat.name }}</option>
+            </select>
+          </div>
+
+          <!-- Image URL -->
+          <div class="form-group">
+            <label for="imageUrl" class="form-label">
+              <span class="icon">🖼️</span>
+              URL de la Imagen
+            </label>
+            <input
+              type="url"
+              id="imageUrl"
+              class="form-input"
+              [value]="product().imageUrl || ''"
+              (input)="updateField('imageUrl', $any($event.target).value)"
+              placeholder="https://ejemplo.com/imagen.jpg"
+              [disabled]="loading()"
+            />
+            <small class="form-hint">
+              URL de la imagen del producto
+            </small>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="form-column">
+          <!-- Price -->
+          <div class="form-group">
+            <label for="price" class="form-label">
+              <span class="icon">💰</span>
+              Precio
+              <span class="required">*</span>
+            </label>
+            <div class="input-with-prefix">
+              <span class="input-prefix">$</span>
+              <input
+                type="number"
+                id="price"
+                class="form-input input-with-prefix-field"
+                [value]="product().price || 0"
+                (input)="updateField('price', +$any($event.target).value)"
+                placeholder="0.00"
+                min="0"
+                step="0.01"
+                required
+                [disabled]="loading()"
+              />
+            </div>
+          </div>
+
+          <!-- Stock -->
+          <div class="form-group">
+            <label for="stock" class="form-label">
+              <span class="icon">📦</span>
+              Stock (Unidades)
+            </label>
+            <input
+              type="number"
+              id="stock"
+              class="form-input"
+              [value]="product().stock || 0"
+              (input)="updateField('stock', +$any($event.target).value)"
+              placeholder="0"
+              min="0"
+              [disabled]="loading()"
+            />
+          </div>
+
+          <!-- Size -->
+          <div class="form-group">
+            <label for="size" class="form-label">
+              <span class="icon">📏</span>
+              Talla
+            </label>
+            <select
+              id="size"
+              class="form-select"
+              [value]="product().size || ''"
+              (change)="updateField('size', $any($event.target).value)"
+              [disabled]="loading()"
+            >
+              <option value="">Seleccionar talla</option>
+              <option *ngFor="let size of sizes" [value]="size">{{ size }}</option>
+            </select>
+          </div>
+
+          <!-- Color -->
+          <div class="form-group">
+            <label for="color" class="form-label">
+              <span class="icon">🎨</span>
+              Color
+            </label>
+            <select
+              id="color"
+              class="form-select"
+              [value]="product().color || ''"
+              (change)="updateField('color', $any($event.target).value)"
+              [disabled]="loading()"
+            >
+              <option value="">Seleccionar color</option>
+              <option *ngFor="let color of colors" [value]="color">{{ color }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Preview -->
+      <div class="preview-section">
+        <h3 class="preview-title">
+          <span class="icon">👁️</span>
+          Vista Previa del Producto
+        </h3>
+        <div class="preview-card">
+          <div class="preview-image">
+            <img 
+              [src]="product().imageUrl || 'https://via.placeholder.com/300x400?text=Sin+Imagen'" 
+              [alt]="product().name || 'Preview'"
+              onerror="this.src='https://via.placeholder.com/300x400?text=Sin+Imagen'"
+            />
+          </div>
+          <div class="preview-content">
+            <div class="preview-category" *ngIf="product().categoryId">
+              {{ getCategoryName(product().categoryId) }}
+            </div>
+            <h4 class="preview-name">
+              {{ product().name || 'Nombre del producto' }}
+            </h4>
+            <p class="preview-description">
+              {{ product().description || 'Sin descripción' }}
+            </p>
+            <div class="preview-details">
+              <span class="preview-detail" *ngIf="product().size">
+                📏 {{ product().size }}
+              </span>
+              <span class="preview-detail" *ngIf="product().color">
+                🎨 {{ product().color }}
+              </span>
+              <span class="preview-detail" *ngIf="product().stock !== undefined">
+                📦 {{ product().stock }} unidades
+              </span>
+            </div>
+            <div class="preview-price">
+              ${{ (product().price || 0).toFixed(2) }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button 
+          type="button" 
+          class="btn btn-cancel" 
+          (click)="cancel()"
+          [disabled]="loading()"
+        >
+          <span class="icon">✖️</span>
+          Cancelar
+        </button>
+        <button 
+          type="submit" 
+          class="btn btn-submit"
+          [disabled]="loading() || !product().name.trim() || !product().price || (product().price ?? 0) <= 0"
+        >
+          <span *ngIf="!loading()" class="icon">
+            {{ isEditMode() ? '💾' : '✨' }}
+          </span>
+          <div *ngIf="loading()" class="btn-spinner"></div>
+          {{ loading() ? 'Guardando...' : (isEditMode() ? 'Actualizar Producto' : 'Crear Producto') }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="decoration decoration-1">👗</div>
+  <div class="decoration decoration-2">👔</div>
+  <div class="decoration decoration-3">👕</div>
+  <div class="decoration decoration-4">👖</div>
+</div>
